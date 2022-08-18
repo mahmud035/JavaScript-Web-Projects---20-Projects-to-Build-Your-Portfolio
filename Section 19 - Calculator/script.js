@@ -4,6 +4,15 @@ const calculatorDisplay = document.querySelector('h1');
 const inputButtons = document.querySelectorAll('button');
 const clearButton = document.getElementById('clear-btn');
 
+// Calculate first and second values depending on operator
+const calculate = {
+  '÷': (firstNumber, secondNumber) => firstNumber / secondNumber,
+  '×': (firstNumber, secondNumber) => firstNumber * secondNumber,
+  '+': (firstNumber, secondNumber) => firstNumber + secondNumber,
+  '-': (firstNumber, secondNumber) => firstNumber - secondNumber,
+  '=': (secondNumber) => secondNumber,
+};
+
 let firstValue = 0;
 let operatorValue = '';
 let awaitingNextValue = false;
@@ -34,17 +43,30 @@ function addDecimal() {
 
 function useOperator(operator) {
   const currentValue = Number(calculatorDisplay.innerText);
+  // Prevent multiple operators from being pressed
+  if (operatorValue && awaitingNextValue) {
+    operatorValue = operator;
+    return;
+  }
   // Assign firstValue if no value
   if (!firstValue) {
     firstValue = currentValue;
   } else {
-    console.log('currentValue', currentValue);
+    const calculation = calculate[operatorValue](firstValue, currentValue); // ! don't understand this line
+    calculatorDisplay.innerText = calculation;
+    firstValue = calculation;
   }
   //  Ready for next value, store operator
   awaitingNextValue = true;
   operatorValue = operator;
-  console.log('firstValue: ' + firstValue);
-  console.log('operatorValue: ' + operatorValue);
+}
+
+// Reset all values, Display
+function resetAll() {
+  firstValue = 0;
+  operatorValue = '';
+  awaitingNextValue = false;
+  calculatorDisplay.innerText = '0';
 }
 
 // Add Event Listeners for numbers, operators, decimal buttons
@@ -58,15 +80,7 @@ inputButtons.forEach((inputButton) => {
   } else if (inputButton.classList.contains('decimal')) {
     inputButton.addEventListener('click', () => addDecimal());
   }
-  // console.log(inputButton);
 });
 
-// Reset all values, Display
-function resetAll() {
-  firstValue = 0;
-  operatorValue = '';
-  awaitingNextValue = false;
-  calculatorDisplay.innerText = '0';
-}
 // Event Listener for Clear Button
 clearButton.addEventListener('click', resetAll);
